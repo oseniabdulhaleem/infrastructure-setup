@@ -14,6 +14,9 @@ resource "google_cloudbuildv2_connection" "github" {
 
   # This block is required by the provider, even if it's already configured.
   # Terraform will ignore it on import.
+  github_config {
+    app_installation_id = 59479670
+  }
 }
 
 # Define the repository resource so we can import it
