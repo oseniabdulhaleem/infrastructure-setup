@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud with Workload Identity
         id: auth
         uses: 'google-github-actions/auth@v1'
         with:
