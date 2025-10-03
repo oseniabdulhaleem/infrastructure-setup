@@ -7,8 +7,8 @@ provider "google" {
 
 
 data "google_cloudbuildv2_connection" "github" {
-  name     = "hashitalks-connection-setup"  
-  location = var.region                 
+  name     = "hashitalks-connection-setup"
+  location = var.region
 }
 
 data "google_cloudbuildv2_repository" "app_repo" {
@@ -128,7 +128,7 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = "europe-west1"  # ← Match your connection region
+  location    = "europe-west1" # ← Match your connection region
 
   repository_event_config {
     repository = data.google_cloudbuildv2_repository.app_repo.id
