@@ -6,15 +6,16 @@ provider "google" {
 }
 
 
-data "google_cloudbuildv2_connection" "github" {
+resource "google_cloudbuildv2_connection" "github" {
   name     = "hashitalks-connection-setup"
   location = var.region
 }
 
-data "google_cloudbuildv2_repository" "app_repo" {
+resource "google_cloudbuildv2_repository" "app_repo" {
   name              = "oseniabdulhaleem-hashitalks-cloud-run"
-  parent_connection = data.google_cloudbuildv2_connection.github.id
+  parent_connection = google_cloudbuildv2_connection.github.name
   location          = var.region
+  remote_uri        = "https://github.com/oseniabdulhaleem/hashitalks-cloud-run.git"
 }
 
 
