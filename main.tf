@@ -139,7 +139,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   }
 
   source_to_build {
-    repository = data.google_cloudbuildv2_repository.app_repo.id
+    repository = google_cloudbuildv2_repository.app_repo.id
     ref        = "refs/heads/main"
     repo_type  = "GITHUB"
   }
