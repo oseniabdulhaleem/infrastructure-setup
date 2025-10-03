@@ -120,6 +120,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   github {
     owner = split("/", var.github_app_repo)[0]
     name  = split("/", var.github_app_repo)[1]
+
     push {
       branch = "^main$"
     }
