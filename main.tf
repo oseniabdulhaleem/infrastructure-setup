@@ -116,6 +116,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on PR merge to main"
   filename    = "cloudbuild.yaml"
+  location    = var.region
 
   github {
     owner = split("/", var.github_app_repo)[0]
