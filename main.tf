@@ -39,7 +39,9 @@ resource "google_artifact_registry_repository" "hashitalks_app_repo" {
 resource "google_clouddeploy_target" "test" {
   name        = "${var.app_name}-test"
   description = "Test Cloud Run environment"
-  run {}
+  run {
+    location = "projects/${var.project_id}/locations/${var.region}"
+  }
 
   labels = {
     environment = "test"
@@ -49,7 +51,6 @@ resource "google_clouddeploy_target" "test" {
 
   depends_on = [module.project-services]
   location   = var.region
-  provider   = google-beta
 }
 
 resource "google_clouddeploy_target" "staging" {
@@ -64,7 +65,9 @@ resource "google_clouddeploy_target" "staging" {
     managed_by  = "terraform"
   }
 
-  run {}
+  run {
+    location = "projects/${var.project_id}/locations/${var.region}"
+  }
   depends_on = [module.project-services]
 }
 
@@ -80,7 +83,9 @@ resource "google_clouddeploy_target" "production" {
     managed_by  = "terraform"
   }
 
-  run {}
+  run {
+    location = "projects/${var.project_id}/locations/${var.region}"
+  }
   depends_on = [module.project-services]
 }
 
@@ -115,10 +120,8 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   github {
     owner = split("/", var.github_app_repo)[0]
     name  = split("/", var.github_app_repo)[1]
-    pull_request {
-      branch          = "^main$" # Regex for the main branch
-      comment_control = "COMMENTS_DISABLED"
-      invert_regex    = false
+    push {
+      branch          = "^main$"
     }
   }
 
