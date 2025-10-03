@@ -132,7 +132,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   location    = "europe-west1" # ← Match your connection region
 
   repository_event_config {
-    repository = data.google_cloudbuildv2_repository.app_repo.id
+    repository = google_cloudbuildv2_repository.app_repo.id
     push {
       branch = "^main$"
     }
