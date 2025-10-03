@@ -12,5 +12,5 @@ output "artifact_registry_repository" {
 
 output "cloud_build_trigger_id" {
   value       = google_cloudbuild_trigger.app_trigger.id
-  description = "The ID of the Cloud Build trigger for the application."
+  description = "The ID of the Cloud Build trigger for the application in GCP."
 }
