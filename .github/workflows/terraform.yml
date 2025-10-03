@@ -1,0 +1,57 @@
+# .github/workflows/terraform.yml
+
+name: 'Terraform CI/CD for Infrastructure'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+  pull_request:
+    paths:
+      - '**.tf'
+  workflow_dispatch:
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  pull-requests: 'write'
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    env:
+      # This TF_VAR will pass the project_id to your terraform config
+      TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+      TF_VAR_github_app_repo: "oseniabdulhaleem/hashitalks-cloud-run"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: 'google-github-actions/auth@v1'
+        with:
+          # REPLACE with your WIF provider details
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }} 
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
