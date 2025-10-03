@@ -6,16 +6,19 @@ provider "google" {
 }
 
 
-resource "google_cloudbuildv2_connection" "github" {
-  name     = "hashitalks-connection-setup"
+data "google_cloudbuildv2_connection" "github" {
+  name     = "hashitalks-connection-setup" # The Connection ID from Step 1
   location = var.region
+  project  = var.project_id
 }
 
-resource "google_cloudbuildv2_repository" "app_repo" {
-  name              = "oseniabdulhaleem-hashitalks-cloud-run"
-  parent_connection = google_cloudbuildv2_connection.github.name
-  location          = var.region
-  remote_uri        = "https://github.com/oseniabdulhaleem/hashitalks-cloud-run.git"
+data "google_cloudbuildv2_repository" "app_repo" {
+  name     = "oseniabdulhaleem-hashitalks-cloud-run" # The Repository ID from Step 1
+  location = var.region
+  project  = var.project_id
+
+  # This depends_on ensures Terraform looks up the connection first
+  depends_on = [data.google_cloudbuildv2_connection.github]
 }
 
 
@@ -129,28 +132,26 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = "europe-west1" # ← Match your connection region
+  location    = var.region
 
   repository_event_config {
-    repository = google_cloudbuildv2_repository.app_repo.id
+    # Use the ID from the data source
+    repository = data.google_cloudbuildv2_repository.app_repo.id
     push {
       branch = "^main$"
     }
-  }
-
-  source_to_build {
-    repository = google_cloudbuildv2_repository.app_repo.id
-    ref        = "refs/heads/main"
-    repo_type  = "GITHUB"
   }
 
   filename = "cloudbuild.yaml"
 
   substitutions = {
     _DELIVERY_PIPELINE = google_clouddeploy_delivery_pipeline.pipeline.name
-    _REGION            = "europe-west1"
+    _REGION            = var.region
     _APP_NAME          = var.app_name
   }
 
-  depends_on = [module.project-services]
+  depends_on = [
+    module.project-services,
+    data.google_cloudbuildv2_repository.app_repo # Depend on the data source
+  ]
 }
