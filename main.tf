@@ -15,7 +15,11 @@ resource "google_cloudbuildv2_connection" "github" {
   # This block is required by the provider, even if it's already configured.
   # Terraform will ignore it on import.
   github_config {
-    app_installation_id = 59479670
+    app_installation_id = null
+
+    authorizer_credential {
+      oauth_token_secret_version = "projects/${var.project_id}/secrets/github-pat-for-cloudbuild/versions/1"
+    }
   }
 }
 
