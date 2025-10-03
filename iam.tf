@@ -15,4 +15,8 @@ resource "google_project_iam_member" "cloudbuild_permissions" {
   project = var.project_id
   role    = each.key
   member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+
+  depends_on = [
+    module.project-services
+  ]
 }
