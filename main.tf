@@ -144,7 +144,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
 
   repository_event_config {
     # Use the ID from the data source
-    repository = data.google_cloudbuildv2_repository.app_repo.id
+    repository = google_cloudbuildv2_repository.app_repo.id
     push {
       branch = "^main$"
     }
@@ -160,6 +160,6 @@ resource "google_cloudbuild_trigger" "app_trigger" {
 
   depends_on = [
     module.project-services,
-    data.google_cloudbuildv2_repository.app_repo # Depend on the data source
+    google_cloudbuildv2_repository.app_repo # Depend on the data source
   ]
 }
