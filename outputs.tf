@@ -6,7 +6,7 @@ output "delivery_pipeline_name" {
 }
 
 output "artifact_registry_repository" {
-  value       = google_artifact_registry_repository.app_repo.name
+  value       = google_artifact_registry_repository.hashitalks_app_repo.name
   description = "The name of the Artifact Registry repository for application images."
 }
 
