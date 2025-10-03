@@ -6,6 +6,19 @@ provider "google" {
 }
 
 
+data "google_cloudbuildv2_connection" "github" {
+  name     = "hashitalks-connection-setup"  
+  location = var.region                 
+}
+
+data "google_cloudbuildv2_repository" "app_repo" {
+  name              = "oseniabdulhaleem-hashitalks-cloud-run"
+  parent_connection = data.google_cloudbuildv2_connection.github.id
+  location          = var.region
+}
+
+
+
 # This module now exclusively handles enabling all necessary APIs.
 # It's more robust and maintained by Google.
 module "project-services" {
@@ -114,24 +127,29 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 # 5. Create the Cloud Build Trigger to automate application deployments
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
-  description = "Deploys ${var.app_name} on PR merge to main"
-  filename    = "cloudbuild.yaml"
-  location    = var.region
+  description = "Deploys ${var.app_name} on push to main"
+  location    = "europe-west1"  # ← Match your connection region
 
-  github {
-    owner = split("/", var.github_app_repo)[0]
-    name  = split("/", var.github_app_repo)[1]
-
+  repository_event_config {
+    repository = data.google_cloudbuildv2_repository.app_repo.id
     push {
       branch = "^main$"
     }
   }
 
-  # These substitutions will be available in the application's cloudbuild.yaml
+  source_to_build {
+    repository = data.google_cloudbuildv2_repository.app_repo.id
+    ref        = "refs/heads/main"
+    repo_type  = "GITHUB"
+  }
+
+  filename = "cloudbuild.yaml"
+
   substitutions = {
     _DELIVERY_PIPELINE = google_clouddeploy_delivery_pipeline.pipeline.name
-    _REGION            = var.region
+    _REGION            = "europe-west1"
     _APP_NAME          = var.app_name
   }
+
   depends_on = [module.project-services]
 }
