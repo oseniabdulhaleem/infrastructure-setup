@@ -8,7 +8,7 @@ variable "project_id" {
 variable "project_name" {
   description = "The GCP project Name to deploy resources into."
   type        = string
-  default = "Cloud Roadshow"
+  default     = "Cloud Roadshow"
 }
 
 variable "region" {

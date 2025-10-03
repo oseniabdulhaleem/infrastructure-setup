@@ -8,8 +8,8 @@ resource "google_project_iam_member" "cloudbuild_permissions" {
   for_each = toset([
     "roles/artifactregistry.writer",
     "roles/clouddeploy.releaser",
-    "roles/run.developer",          # Allows Cloud Deploy to manage Cloud Run
-    "roles/iam.serviceAccountUser"  # Allows Cloud Deploy to act as the runtime SA
+    "roles/run.developer",         # Allows Cloud Deploy to manage Cloud Run
+    "roles/iam.serviceAccountUser" # Allows Cloud Deploy to act as the runtime SA
   ])
 
   project = var.project_id

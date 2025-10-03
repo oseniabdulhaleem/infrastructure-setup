@@ -40,8 +40,8 @@ resource "google_clouddeploy_target" "test" {
   name        = "${var.app_name}-test"
   description = "Test Cloud Run environment"
   run {
-    location      = var.region
-  } 
+    location = var.region
+  }
 
   labels = {
     environment = "test"
@@ -49,15 +49,15 @@ resource "google_clouddeploy_target" "test" {
     managed_by  = "terraform"
   }
 
-  depends_on  = [module.project-services]
-  location      = var.region
-  provider =  google-beta
+  depends_on = [module.project-services]
+  location   = var.region
+  provider   = google-beta
 }
 
 resource "google_clouddeploy_target" "staging" {
-  name        = "${var.app_name}-staging"
-  description = "Staging Cloud Run environment"
-  location      = var.region
+  name             = "${var.app_name}-staging"
+  description      = "Staging Cloud Run environment"
+  location         = var.region
   require_approval = true
 
   labels = {
@@ -67,8 +67,8 @@ resource "google_clouddeploy_target" "staging" {
   }
 
   run {
-    location      = var.region
-  } 
+    location = var.region
+  }
   depends_on = [module.project-services]
 }
 
@@ -76,7 +76,7 @@ resource "google_clouddeploy_target" "production" {
   name             = "${var.app_name}-production"
   description      = "Production Cloud Run environment"
   require_approval = true # CRITICAL: This enforces a manual approval gate
-  location      = var.region
+  location         = var.region
 
   labels = {
     environment = "production"
@@ -85,7 +85,7 @@ resource "google_clouddeploy_target" "production" {
   }
 
   run {
-    location      = var.region
+    location = var.region
   }
   depends_on = [module.project-services]
 }
