@@ -39,9 +39,7 @@ resource "google_artifact_registry_repository" "hashitalks_app_repo" {
 resource "google_clouddeploy_target" "test" {
   name        = "${var.app_name}-test"
   description = "Test Cloud Run environment"
-  run {
-    location = var.region
-  }
+  run {}
 
   labels = {
     environment = "test"
@@ -66,9 +64,7 @@ resource "google_clouddeploy_target" "staging" {
     managed_by  = "terraform"
   }
 
-  run {
-    location = var.region
-  }
+  run {}
   depends_on = [module.project-services]
 }
 
@@ -84,9 +80,7 @@ resource "google_clouddeploy_target" "production" {
     managed_by  = "terraform"
   }
 
-  run {
-    location = var.region
-  }
+  run {}
   depends_on = [module.project-services]
 }
 
