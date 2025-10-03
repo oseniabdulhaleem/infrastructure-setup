@@ -6,19 +6,27 @@ provider "google" {
 }
 
 
-data "google_cloudbuildv2_connection" "github" {
-  name     = "hashitalks-connection-setup" # The Connection ID from Step 1
+# Define the connection resource so we can import it
+resource "google_cloudbuildv2_connection" "github" {
+  name     = "hashitalks-connection-setup"
   location = var.region
   project  = var.project_id
+
+  # This block is required by the provider, even if it's already configured.
+  # Terraform will ignore it on import.
+  github_config {
+    app_installation_id = 0
+  }
 }
 
-data "google_cloudbuildv2_repository" "app_repo" {
-  name     = "oseniabdulhaleem-hashitalks-cloud-run" # The Repository ID from Step 1
-  location = var.region
-  project  = var.project_id
-
-  # This depends_on ensures Terraform looks up the connection first
-  depends_on = [data.google_cloudbuildv2_connection.github]
+# Define the repository resource so we can import it
+resource "google_cloudbuildv2_repository" "app_repo" {
+  # This is a logical name for Terraform to use
+  name              = "oseniabdulhaleem-hashitalks-cloud-run"
+  location          = var.region
+  project           = var.project_id
+  parent_connection = google_cloudbuildv2_connection.github.name
+  remote_uri        = "https://github.com/oseniabdulhaleem/hashitalks-cloud-run.git"
 }
 
 
