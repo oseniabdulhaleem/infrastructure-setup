@@ -6,6 +6,25 @@ provider "google" {
 }
 
 
+resource "google_service_account" "app_build_sa" {
+  account_id   = "app-build-sa"
+  display_name = "Application Build Service Account"
+  project      = var.project_id
+}
+
+resource "google_project_iam_member" "app_build_sa_permissions" {
+  for_each = toset([
+    "roles/artifactregistry.writer", # To push Docker images
+    "roles/clouddeploy.releaser",    # To create Cloud Deploy releases
+    "roles/run.developer",           # For Cloud Deploy to manage Cloud Run
+    "roles/iam.serviceAccountUser"   # For Cloud Deploy to act on behalf of the runtime SA
+  ])
+
+  project = var.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.app_build_sa.email}"
+}
+
 # 1. Create a secret in Secret Manager to hold the GitHub PAT
 resource "google_secret_manager_secret" "github_token_secret" {
   project   = var.project_id
@@ -179,9 +198,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   description = "Deploys ${var.app_name} on push to main"
   location    = "global"
 
-  # Use service account for more permissions if needed
-  # service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
-
+  service_account = google_service_account.app_build_sa.id
   repository_event_config {
     # Use the ID from the data source
     repository = google_cloudbuildv2_repository.app_repo.id
@@ -200,6 +217,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
 
   depends_on = [
     module.project-services,
-    google_cloudbuildv2_repository.app_repo
+    google_cloudbuildv2_repository.app_repo,
+    google_project_iam_member.app_build_sa_permissions
   ]
 }
