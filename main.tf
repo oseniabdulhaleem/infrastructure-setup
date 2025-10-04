@@ -177,7 +177,7 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = var.region
+  location    = "global"
 
   # Use service account for more permissions if needed
   # service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
