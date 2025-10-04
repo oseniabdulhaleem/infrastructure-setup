@@ -25,6 +25,12 @@ resource "google_project_iam_member" "app_build_sa_permissions" {
   member  = "serviceAccount:${google_service_account.app_build_sa.email}"
 }
 
+resource "google_service_account_iam_member" "cloudbuild_agent_can_use_build_sa" {
+  service_account_id = google_service_account.app_build_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+}
+
 # 1. Create a secret in Secret Manager to hold the GitHub PAT
 resource "google_secret_manager_secret" "github_token_secret" {
   project   = var.project_id
@@ -218,6 +224,6 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   depends_on = [
     module.project-services,
     google_cloudbuildv2_repository.app_repo,
-    google_project_iam_member.app_build_sa_permissions
+    google_service_account_iam_member.cloudbuild_agent_can_use_build_sa
   ]
 }
