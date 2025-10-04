@@ -178,13 +178,16 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
 
-  repository_event_config {
-    # Use the ID from the data source
-    repository = google_cloudbuildv2_repository.app_repo.id
+  # Use the GitHub app connection instead
+  github {
+    owner = split("/", var.github_app_repo)[0]
+    name  = split("/", var.github_app_repo)[1]
+
     push {
       branch = "^main$"
     }
   }
+
 
   filename = "cloudbuild.yaml"
 
