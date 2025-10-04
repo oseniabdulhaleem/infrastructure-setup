@@ -6,32 +6,6 @@ provider "google" {
 }
 
 
-resource "google_service_account" "app_build_sa" {
-  account_id   = "app-build-sa"
-  display_name = "Application Build Service Account"
-  project      = var.project_id
-}
-
-resource "google_project_iam_member" "app_build_sa_permissions" {
-  for_each = toset([
-    "roles/artifactregistry.writer", # To push Docker images
-    "roles/clouddeploy.releaser",    # To create Cloud Deploy releases
-    "roles/run.developer",           # For Cloud Deploy to manage Cloud Run
-    "roles/iam.serviceAccountUser"   # For Cloud Deploy to act on behalf of the runtime SA
-  ])
-
-  project = var.project_id
-  role    = each.key
-  member  = "serviceAccount:${google_service_account.app_build_sa.email}"
-}
-
-resource "google_service_account_iam_member" "cloudbuild_agent_can_use_build_sa" {
-  service_account_id = google_service_account.app_build_sa.name
-  role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-}
-
-
 
 # 1. Create a secret in Secret Manager to hold the GitHub PAT
 resource "google_secret_manager_secret" "github_token_secret" {
@@ -204,7 +178,7 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = var.region
+  location    = "global"
 
   service_account = google_service_account.app_build_sa.id
   repository_event_config {
