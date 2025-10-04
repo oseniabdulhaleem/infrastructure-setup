@@ -178,7 +178,7 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = "global"
+  location    = var.region
 
   # service_account = google_service_account.app_build_sa.id
   repository_event_config {
