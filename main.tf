@@ -177,17 +177,18 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
+  location    = var.region
 
-  # Use the GitHub app connection instead
-  github {
-    owner = split("/", var.github_app_repo)[0]
-    name  = split("/", var.github_app_repo)[1]
+  # Use service account for more permissions if needed
+  service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 
+  repository_event_config {
+    # Use the ID from the data source
+    repository = google_cloudbuildv2_repository.app_repo.id
     push {
       branch = "^main$"
     }
   }
-
 
   filename = "cloudbuild.yaml"
 
