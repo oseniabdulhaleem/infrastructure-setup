@@ -200,6 +200,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   depends_on = [
     module.project-services,
     google_cloudbuildv2_repository.app_repo,
-    google_service_account_iam_member.cloudbuild_agent_can_use_build_sa
+    google_service_account_iam_member.cloudbuild_agent_can_use_build_sa,
+    google_service_account_iam_member.terraform_can_impersonate_build_sa
   ]
 }
