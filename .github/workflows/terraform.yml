@@ -23,9 +23,11 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     env:
-      # This TF_VAR will pass the project_id to your terraform config
       TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
       TF_VAR_github_app_repo: "oseniabdulhaleem/hashitalks-cloud-run"
+      TF_VAR_github_app_installation_id: ${{ secrets.GCP_GITHUB_APP_ID }}
+      TF_VAR_github_pat: ${{ secrets.GCP_GITHUB_PAT }}
+
 
     steps:
       - name: Checkout

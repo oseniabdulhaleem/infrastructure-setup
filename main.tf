@@ -6,31 +6,64 @@ provider "google" {
 }
 
 
-# Define the connection resource so we can import it
-resource "google_cloudbuildv2_connection" "github" {
-  name     = "hashitalks-connection-setup"
-  location = var.region
-  project  = var.project_id
+# 1. Create a secret in Secret Manager to hold the GitHub PAT
+resource "google_secret_manager_secret" "github_token_secret" {
+  project   = var.project_id
+  secret_id = "github-pat-for-cloudbuild"
 
-  # This block is required by the provider, even if it's already configured.
-  # Terraform will ignore it on import.
-  github_config {
-    app_installation_id = null
-
-    authorizer_credential {
-      oauth_token_secret_version = "projects/${var.project_id}/secrets/github-pat-for-cloudbuild/versions/latest"
-    }
+  replication {
+    auto {}
   }
 }
 
-# Define the repository resource so we can import it
+# 2. Add the PAT you created as the first version of the secret
+resource "google_secret_manager_secret_version" "github_token_secret_version" {
+  secret      = google_secret_manager_secret.github_token_secret.id
+  secret_data = var.github_pat
+}
+
+# 3. Grant the Cloud Build Service Agent permission to access the secret
+#    This uses a data source to construct the IAM policy correctly.
+data "google_iam_policy" "serviceagent_secretAccessor" {
+  binding {
+    role = "roles/secretmanager.secretAccessor"
+    members = [
+      # This constructs the full name of the Cloud Build Service Agent
+      "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+    ]
+  }
+}
+
+# This resource applies the policy to the secret.
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project     = google_secret_manager_secret.github_token_secret.project
+  secret_id   = google_secret_manager_secret.github_token_secret.secret_id
+  policy_data = data.google_iam_policy.serviceagent_secretAccessor.policy_data
+}
+
+# Create the GitHub connection using the secret and installation ID
+resource "google_cloudbuildv2_connection" "github" {
+  project  = var.project_id
+  location = var.region
+  name     = "hashitalks-connection-setup"
+
+  github_config {
+    app_installation_id = var.github_app_installation_id
+    authorizer_credential {
+      oauth_token_secret_version = google_secret_manager_secret_version.github_token_secret_version.id
+    }
+  }
+  # This ensures the IAM policy is applied before the connection is created
+  depends_on = [google_secret_manager_secret_iam_policy.policy]
+}
+
+# 5. Connect the specific GitHub repository to the connection
 resource "google_cloudbuildv2_repository" "app_repo" {
-  # This is a logical name for Terraform to use
-  name              = "oseniabdulhaleem-hashitalks-cloud-run"
-  location          = var.region
   project           = var.project_id
+  location          = var.region
+  name              = "oseniabdulhaleem-hashitalks-cloud-run"
   parent_connection = google_cloudbuildv2_connection.github.name
-  remote_uri        = "https://github.com/oseniabdulhaleem/hashitalks-cloud-run.git"
+  remote_uri        = "https://github.com/${var.github_app_repo}.git"
 }
 
 

@@ -28,3 +28,15 @@ variable "github_app_repo" {
   type        = string
   # EXAMPLE: "oseniabdulhaleem/hashitalks-cloud-run"
 }
+
+variable "github_pat" {
+  description = "The GitHub Personal Access Token for setting up the Cloud Build connection."
+  type        = string
+  sensitive   = true # Marks the variable as sensitive so it's not shown in logs
+}
+
+variable "github_app_installation_id" {
+  description = "The installation ID of the Google Cloud Build GitHub App."
+  type        = number
+  sensitive   = true
+}
