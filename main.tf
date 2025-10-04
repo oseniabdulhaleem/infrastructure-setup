@@ -180,7 +180,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   description = "Deploys ${var.app_name} on push to main"
   location    = "global"
 
-  service_account = google_service_account.app_build_sa.id
+  # service_account = google_service_account.app_build_sa.id
   repository_event_config {
     # Use the ID from the data source
     repository = google_cloudbuildv2_repository.app_repo.id
