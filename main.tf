@@ -177,7 +177,6 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 resource "google_cloudbuild_trigger" "app_trigger" {
   name        = "trigger-deploy-${var.app_name}"
   description = "Deploys ${var.app_name} on push to main"
-  location    = var.region
 
   repository_event_config {
     # Use the ID from the data source
@@ -197,6 +196,6 @@ resource "google_cloudbuild_trigger" "app_trigger" {
 
   depends_on = [
     module.project-services,
-    google_cloudbuildv2_repository.app_repo # Depend on the data source
+    google_cloudbuildv2_repository.app_repo
   ]
 }
