@@ -181,7 +181,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   location    = var.region
 
   # service_account = google_service_account.app_build_sa.id
-  service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  # service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
   repository_event_config {
     # Use the ID from the data source
     repository = google_cloudbuildv2_repository.app_repo.id
