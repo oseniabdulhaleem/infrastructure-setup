@@ -51,5 +51,5 @@ resource "google_service_account_iam_member" "cloudbuild_agent_can_use_build_sa"
 resource "google_service_account_iam_member" "terraform_can_impersonate_build_sa" {
   service_account_id = google_service_account.app_build_sa.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "serviceAccount:github-terraform-sa@${var.project_id}.iam.gserviceaccount.com"
+  member             = "serviceAccount:terraform-sa@${var.project_id}.iam.gserviceaccount.com"
 }
