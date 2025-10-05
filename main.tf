@@ -182,6 +182,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
 
   # service_account = google_service_account.app_build_sa.id
   # service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  service_account = google_service_account.app_build_sa.id
   repository_event_config {
     # Use the ID from the data source
     repository = google_cloudbuildv2_repository.app_repo.id
@@ -201,7 +202,7 @@ resource "google_cloudbuild_trigger" "app_trigger" {
   depends_on = [
     module.project-services,
     google_cloudbuildv2_repository.app_repo,
-    # google_service_account_iam_member.cloudbuild_agent_can_use_build_sa,
+    google_service_account_iam_member.cloudbuild_agent_can_use_build_sa,
     # google_service_account_iam_member.terraform_can_impersonate_build_sa
   ]
 }
