@@ -91,5 +91,5 @@ resource "google_cloud_run_service_iam_member" "allow_public_access_production" 
   role     = "roles/run.invoker"
   member   = "allUsers"
 
-  depends_on = [google_clouddeploy_delivery_pipeline, google_project_iam_member.terraform_sa_run_admin]
+  depends_on = [google_clouddeploy_delivery_pipeline.pipeline, google_project_iam_member.terraform_sa_run_admin]
 }
