@@ -57,11 +57,11 @@ resource "google_service_account_iam_member" "terraform_can_impersonate_build_sa
 
 # Grant public access to the 'test' Cloud Run service
 resource "google_cloud_run_service_iam_member" "allow_public_access_test" {
-  location = var.region
-  project  = var.project_id
-  service  = "my-app-test"
-  role     = "roles/run.invoker"
-  member   = "allUsers"
+  location   = var.region
+  project    = var.project_id
+  service    = "my-app-test"
+  role       = "roles/run.invoker"
+  member     = "allUsers"
   depends_on = [google_clouddeploy_delivery_pipeline.pipeline]
 }
 
@@ -76,7 +76,7 @@ resource "google_cloud_run_service_iam_member" "allow_public_access_staging" {
   depends_on = [google_clouddeploy_delivery_pipeline.pipeline]
 }
 
-# Grant public access to the 'production' Cloud Run service
+# Grant public access to the 'production app' Cloud Run service
 resource "google_cloud_run_service_iam_member" "allow_public_access_production" {
   location = var.region
   project  = var.project_id
