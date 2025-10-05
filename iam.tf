@@ -21,6 +21,13 @@ resource "google_project_iam_member" "cloudbuild_permissions" {
   ]
 }
 
+# Grant the Terraform SA the ability to manage Cloud Run IAM policies
+resource "google_project_iam_member" "terraform_sa_run_admin" {
+  project = var.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:terraform-sa@${var.project_id}.iam.gserviceaccount.com"
+}
+
 
 resource "google_service_account" "app_build_sa" {
   account_id   = "app-build-sa"
